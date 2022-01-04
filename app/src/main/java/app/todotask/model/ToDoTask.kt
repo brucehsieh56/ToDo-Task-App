@@ -1,5 +1,7 @@
 package app.todotask.model
 
+import androidx.compose.ui.graphics.Color
+
 /**
  * Data class that models a To Do task.
  * */
@@ -20,5 +22,6 @@ enum class TaskPriority {
 
     companion object {
         val DEFAULT = P4
+        val colors = listOf(Color.Red, Color.DarkGray, Color.Gray, Color.LightGray)
     }
 }

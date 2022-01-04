@@ -65,4 +65,11 @@ dependencies {
 
     // Material 3
     implementation "androidx.compose.material3:material3:1.0.0-alpha02"
+
+    // Material icons
+    implementation "androidx.compose.material:material-icons-extended:1.1.0-rc01"
+
+    // Accompanist
+    implementation "com.google.accompanist:accompanist-insets:0.22.0-rc"
+    implementation "com.google.accompanist:accompanist-insets-ui:0.22.0-rc"
 }
