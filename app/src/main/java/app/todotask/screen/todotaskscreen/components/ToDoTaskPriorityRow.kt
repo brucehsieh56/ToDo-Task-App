@@ -1,5 +1,8 @@
 package app.todotask.screen.todotaskscreen.components
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
@@ -22,9 +25,7 @@ fun ToDoTaskPriorityRow(
     rowWidth: Dp,
     onPrioritySelected: (TaskPriority) -> Unit
 ) {
-    val selected = TaskPriority.values().indexOfFirst {
-        it == selectedPriority
-    }
+    val selected = TaskPriority.values().indexOfFirst { it == selectedPriority }
 
     Row(
         modifier = Modifier.width(rowWidth),
@@ -37,12 +38,26 @@ fun ToDoTaskPriorityRow(
                     onPrioritySelected(taskPriority)
                 }
             ) {
-                // TODO: 1/3/22 Add animation when swapping icons
-                Icon(
-                    imageVector = if (selected == index) Icons.Outlined.Adjust else Icons.Outlined.Circle,
-                    contentDescription = "Task priority icon",
-                    tint = TaskPriority.colors[index]
-                )
+                Crossfade(
+                    targetState = selected == index,
+                    animationSpec = tween(
+                        durationMillis = 288,
+                        easing = FastOutSlowInEasing
+                    )
+                ) { isSelected ->
+                    when (isSelected) {
+                        true -> Icon(
+                            imageVector = Icons.Outlined.Adjust,
+                            contentDescription = "Selected task priority",
+                            tint = TaskPriority.colors[index]
+                        )
+                        false -> Icon(
+                            imageVector = Icons.Outlined.Circle,
+                            contentDescription = "Unselected task priority",
+                            tint = TaskPriority.colors[index]
+                        )
+                    }
+                }
             }
         }
     }

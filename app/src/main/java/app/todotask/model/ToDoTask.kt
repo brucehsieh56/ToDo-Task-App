@@ -1,6 +1,7 @@
 package app.todotask.model
 
 import androidx.compose.ui.graphics.Color
+import java.util.*
 
 /**
  * Data class that models a To Do task.
@@ -9,7 +10,8 @@ data class ToDoTask(
     val taskName: String,
     val priority: TaskPriority = TaskPriority.DEFAULT,
     val timeCreated: Long = System.currentTimeMillis(),
-    val timeDone: Long? = null
+    val timeDone: Long? = null,
+    val uuid: UUID = UUID.randomUUID()
 ) {
     val isTaskDone get() = timeDone != null
 }

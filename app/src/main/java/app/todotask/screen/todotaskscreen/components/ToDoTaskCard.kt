@@ -25,11 +25,12 @@ import java.util.*
 @Composable
 fun ToDoTaskCard(
     toDoTask: ToDoTask,
-    onTaskCompleted: () -> Unit
+    onTaskCompleted: () -> Unit,
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surface
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp
     ) {
         Row(
             modifier = Modifier
@@ -112,10 +113,12 @@ fun PreviewToDoTaskCard() {
             taskName = "Create an app",
             timeCreated = 1641040780834L
         )
-        ToDoTaskCard(toDoTask = toDoTask) {
-            toDoTask = toDoTask.copy(
-                timeDone = System.currentTimeMillis()
-            )
-        }
+
+        ToDoTaskCard(
+            toDoTask = toDoTask,
+            onTaskCompleted = {
+                toDoTask = toDoTask.copy(timeDone = System.currentTimeMillis())
+            }
+        )
     }
 }
