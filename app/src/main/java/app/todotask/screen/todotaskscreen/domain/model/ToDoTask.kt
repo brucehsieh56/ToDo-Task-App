@@ -1,4 +1,4 @@
-package app.todotask.model
+package app.todotask.screen.todotaskscreen.domain.model
 
 import androidx.compose.ui.graphics.Color
 import java.util.*

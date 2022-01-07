@@ -1,4 +1,4 @@
-package app.todotask.screen.todotaskscreen.components
+package app.todotask.screen.todotaskscreen.presentation.components
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -14,7 +14,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import app.todotask.model.TaskPriority
+import app.todotask.screen.todotaskscreen.domain.model.TaskPriority
 
 /**
  * A Composable for users to select the [TaskPriority] for the task.

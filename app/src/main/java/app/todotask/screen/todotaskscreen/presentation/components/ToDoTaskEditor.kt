@@ -1,4 +1,4 @@
-package app.todotask.screen.todotaskscreen.components
+package app.todotask.screen.todotaskscreen.presentation.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
@@ -16,8 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import app.todotask.common.Constants.EMPTY_STRING
-import app.todotask.model.TaskPriority
-import app.todotask.model.ToDoTask
+import app.todotask.screen.todotaskscreen.domain.model.TaskPriority
+import app.todotask.screen.todotaskscreen.domain.model.ToDoTask
 
 /**
  * A Composable for users to write a [ToDoTask].
@@ -26,6 +26,7 @@ import app.todotask.model.ToDoTask
 @Composable
 fun ToDoTaskEditor(
     modifier: Modifier = Modifier,
+    toDoTask: ToDoTask? = null,
     onSubmit: (ToDoTask) -> Unit = {}
 ) {
     Surface(
@@ -36,18 +37,33 @@ fun ToDoTaskEditor(
     ) {
         Column(modifier = Modifier.animateContentSize()) {
 
-            val (inputText, setInputText) = remember { mutableStateOf("") }
+            val (inputText, setInputText) = remember { mutableStateOf(EMPTY_STRING) }
+            val (taskPriority, setTaskPriority) = remember { mutableStateOf(TaskPriority.DEFAULT) }
             var textFieldSize by remember { mutableStateOf(IntSize(1, 1)) }
-            var selectedPriority by remember { mutableStateOf(TaskPriority.DEFAULT) }
 
             val onEditorDone = {
                 if (inputText.isNotBlank()) {
-                    val toDoTask = ToDoTask(
+
+                    val newToDoTask = toDoTask?.copy(
+                        // Update the existing task
                         taskName = inputText,
-                        priority = selectedPriority,
+                        priority = taskPriority
+                    ) ?: ToDoTask(
+                        // Create a new task
+                        taskName = inputText,
+                        priority = taskPriority,
                     )
-                    onSubmit(toDoTask)
+
+                    onSubmit(newToDoTask)
                     setInputText(EMPTY_STRING)
+                }
+            }
+
+            LaunchedEffect(key1 = toDoTask?.taskName) {
+                // Update inputText
+                toDoTask?.let {
+                    setInputText(it.taskName)
+                    setTaskPriority(it.priority)
                 }
             }
 
@@ -63,13 +79,11 @@ fun ToDoTaskEditor(
             // Show ToDoTaskPriorityRow when there's input text
             if (inputText.isNotBlank()) {
                 ToDoTaskPriorityRow(
-                    selectedPriority = selectedPriority,
+                    selectedPriority = taskPriority,
                     rowWidth = with(LocalDensity.current) {
                         textFieldSize.width.toDp()
                     },
-                    onPrioritySelected = {
-                        selectedPriority = it
-                    }
+                    onPrioritySelected = setTaskPriority
                 )
             }
         }

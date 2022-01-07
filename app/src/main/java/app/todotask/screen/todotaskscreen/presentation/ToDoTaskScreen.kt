@@ -1,22 +1,22 @@
-package app.todotask.screen.todotaskscreen.components
+package app.todotask.screen.todotaskscreen.presentation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
-import app.todotask.common.DummyData
-import app.todotask.model.ToDoTask
+import app.todotask.screen.todotaskscreen.domain.model.ToDoTask
+import app.todotask.screen.todotaskscreen.presentation.components.ToDoTaskCard
+import app.todotask.screen.todotaskscreen.presentation.components.ToDoTaskEditor
 import com.google.accompanist.insets.ExperimentalAnimatedInsets
 import com.google.accompanist.insets.navigationBarsWithImePadding
-import com.google.accompanist.insets.rememberImeNestedScrollConnection
 import com.google.accompanist.insets.statusBarsPadding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -25,9 +25,9 @@ import kotlinx.coroutines.launch
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @Composable
-fun ToDoTaskScreen() {
+fun ToDoTaskScreen(viewModel: ToDoTaskScreenViewModel) {
 
-    var toDoTasks by remember { mutableStateOf(DummyData.toDoTasks) }
+    val toDoTasks = viewModel.toDoTasks
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
@@ -42,16 +42,19 @@ fun ToDoTaskScreen() {
             ) {
                 ToDoTaskEditor(
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                    toDoTask = viewModel.currentEditToDoTask,
                     onSubmit = {
-                        // Copy the toDoTasks and add a new ToDoTask to it
-                        toDoTasks = toDoTasks.toMutableList().apply {
-                            reverse()
-                            add(it)
-                        }.reversed()
 
-                        scope.launch {
-                            delay(1000)
-                            lazyListState.animateScrollToItem(0)
+                        if (viewModel.currentEditToDoTask == null) {
+                            viewModel.onItemAdded(it)
+
+                            // Scroll to bottom
+                            scope.launch {
+                                delay(1000)
+                                lazyListState.animateScrollToItem(0)
+                            }
+                        } else {
+                            viewModel.onItemUpdated(it)
                         }
                     }
                 )
@@ -62,34 +65,22 @@ fun ToDoTaskScreen() {
         LazyColumn(
             modifier = Modifier
                 .statusBarsPadding()
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-                .nestedScroll(connection = rememberImeNestedScrollConnection()),
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+//                .nestedScroll(connection = rememberImeNestedScrollConnection()),
             state = lazyListState,
             contentPadding = contentPadding,
             reverseLayout = true,
             verticalArrangement = Arrangement.spacedBy(space = 4.dp)
         ) {
-            itemsIndexed(
+            items(
                 items = toDoTasks,
                 // Add key for scrolling animation
-                key = { _: Int, item: ToDoTask -> item.uuid }
-            ) { index, toDoTask ->
-
+                key = { item: ToDoTask -> item.uuid }
+            ) {
                 ToDoTaskCard(
-                    toDoTask = toDoTask,
-                    onTaskCompleted = {
-                        // Copy the toDoTasks and update the toDoTask
-                        val newToDoTasks = toDoTasks.toMutableList().apply {
-                            this[index] = toDoTask.copy(
-                                timeDone = if (toDoTask.timeDone == null) {
-                                    System.currentTimeMillis()
-                                } else {
-                                    null
-                                }
-                            )
-                        }
-                        toDoTasks = newToDoTasks
-                    }
+                    toDoTask = it,
+                    onTaskCompleted = { viewModel.onItemCompleted(it) },
+                    onTaskEdit = { viewModel.onItemSelected(it) }
                 )
             }
         }

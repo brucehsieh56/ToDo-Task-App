@@ -1,5 +1,6 @@
-package app.todotask.screen.todotaskscreen.components
+package app.todotask.screen.todotaskscreen.presentation.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,25 +9,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import app.todotask.model.TaskPriority
-import app.todotask.model.ToDoTask
+import app.todotask.screen.todotaskscreen.domain.model.TaskPriority
+import app.todotask.screen.todotaskscreen.domain.model.ToDoTask
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
  * A stateless card representing a [ToDoTask].
  * */
+@ExperimentalComposeUiApi
 @Composable
 fun ToDoTaskCard(
     toDoTask: ToDoTask,
-    onTaskCompleted: () -> Unit,
+    onTaskEdit: () -> Unit,
+    onTaskCompleted: () -> Unit
 ) {
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
@@ -61,7 +69,12 @@ fun ToDoTaskCard(
                 )
             )
             Text(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        onTaskEdit()
+                        keyboardController?.show()
+                    },
                 text = toDoTask.taskName,
                 textDecoration = if (isTaskDone) TextDecoration.LineThrough else null,
                 overflow = TextOverflow.Ellipsis,
@@ -102,6 +115,7 @@ private fun Long.toDateString(): String {
     return SimpleDateFormat("MM/dd/yyyy hh:ss:mm", Locale.getDefault()).format(Date(this))
 }
 
+@ExperimentalComposeUiApi
 @Preview
 @Composable
 fun PreviewToDoTaskCard() {
@@ -109,16 +123,15 @@ fun PreviewToDoTaskCard() {
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        var toDoTask = ToDoTask(
+        val toDoTask = ToDoTask(
             taskName = "Create an app",
             timeCreated = 1641040780834L
         )
 
         ToDoTaskCard(
             toDoTask = toDoTask,
-            onTaskCompleted = {
-                toDoTask = toDoTask.copy(timeDone = System.currentTimeMillis())
-            }
+            onTaskEdit = {},
+            onTaskCompleted = {}
         )
     }
 }
