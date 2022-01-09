@@ -1,7 +1,7 @@
 package app.todotask.common
 
-import app.todotask.screen.todotaskscreen.domain.model.TaskPriority
-import app.todotask.screen.todotaskscreen.domain.model.ToDoTask
+import app.todotask.common.data.local.TaskPriority
+import app.todotask.common.data.local.ToDoTask
 
 object DummyData {
     val toDoTasks = listOf(

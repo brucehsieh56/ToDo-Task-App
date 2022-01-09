@@ -1,31 +1,47 @@
 package app.todotask.screen.todotaskscreen.presentation
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import app.todotask.common.DummyData
-import app.todotask.screen.todotaskscreen.domain.model.ToDoTask
+import androidx.lifecycle.viewModelScope
+import app.todotask.common.data.local.ToDoTask
+import app.todotask.common.data.local.ToDoTaskDatabase
+import kotlinx.coroutines.launch
 
 class ToDoTaskScreenViewModel : ViewModel() {
 
-    var toDoTasks = mutableStateListOf<ToDoTask>()
-        private set
+    var toDoTasks by mutableStateOf<List<ToDoTask>>(emptyList())
 
     private var currentSelected by mutableStateOf(-1)
     val currentEditToDoTask: ToDoTask?
         get() = toDoTasks.getOrNull(currentSelected)
 
-    init {
-        DummyData.toDoTasks.forEach(::onItemAdded)
+    lateinit var database: ToDoTaskDatabase
+
+    fun getData() {
+//        val dummyData = DummyData.toDoTasks
+        viewModelScope.launch {
+//            database.dao().insertToDoTasks(dummyData)
+            loadItems()
+        }
     }
 
     /**
-     * Prepend [newItem].
+     * Load [ToDoTask]s from database.
+     * */
+    private suspend fun loadItems() {
+        toDoTasks = database.dao().getAllToDoTasks().reversed()
+    }
+
+    /**
+     * Insert [newItem] to database.
      * */
     fun onItemAdded(newItem: ToDoTask) {
-        toDoTasks.add(0, newItem)
+        viewModelScope.launch {
+            database.dao().insertSingleToDoTask(newItem)
+            loadItems()
+        }
         resetItemSelected()
     }
 
@@ -37,12 +53,16 @@ class ToDoTaskScreenViewModel : ViewModel() {
     }
 
     /**
-     * Update [currentEditToDoTask].
+     * Update [currentEditToDoTask] in database.
      * */
     fun onItemUpdated(updatedItem: ToDoTask) {
         val currentToDoTask = requireNotNull(currentEditToDoTask)
-        require(currentToDoTask.uuid == updatedItem.uuid) {}
-        toDoTasks[currentSelected] = updatedItem
+        require(currentToDoTask.id == updatedItem.id) {}
+
+        viewModelScope.launch {
+            database.dao().updateToDoTask(updatedItem)
+            loadItems()
+        }
 
         resetItemSelected()
     }
@@ -51,11 +71,8 @@ class ToDoTaskScreenViewModel : ViewModel() {
      * Set or reset [ToDoTask] timeDone as a result of clicking the check box.
      * */
     fun onItemCompleted(item: ToDoTask) {
-
-        val index = toDoTasks.indexOf(item)
-
-        toDoTasks[index] = item.copy(
-            timeDone = if (item.timeDone == null) {
+        val completedToDoTask = item.copy(
+            finishedAt = if (item.finishedAt == null) {
                 // ToDoTask is done, set timestamp
                 System.currentTimeMillis()
             } else {
@@ -63,6 +80,11 @@ class ToDoTaskScreenViewModel : ViewModel() {
                 null
             }
         )
+
+        viewModelScope.launch {
+            database.dao().updateToDoTask(completedToDoTask)
+            loadItems()
+        }
 
         resetItemSelected()
     }

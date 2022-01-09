@@ -6,13 +6,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import app.todotask.screen.todotaskscreen.domain.model.ToDoTask
+import app.todotask.common.Constants.EMPTY_STRING
+import app.todotask.common.data.local.ToDoTask
 import app.todotask.screen.todotaskscreen.presentation.components.ToDoTaskCard
 import app.todotask.screen.todotaskscreen.presentation.components.ToDoTaskEditor
 import com.google.accompanist.insets.ExperimentalAnimatedInsets
@@ -28,8 +28,14 @@ import kotlinx.coroutines.launch
 fun ToDoTaskScreen(viewModel: ToDoTaskScreenViewModel) {
 
     val toDoTasks = viewModel.toDoTasks
+    val (inputText, setInputText) = remember { mutableStateOf(EMPTY_STRING) }
+
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(key1 = "Get data") {
+        viewModel.getData()
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -41,6 +47,8 @@ fun ToDoTaskScreen(viewModel: ToDoTaskScreenViewModel) {
                 contentAlignment = Alignment.Center
             ) {
                 ToDoTaskEditor(
+                    inputText = inputText,
+                    setInputText = setInputText,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
                     toDoTask = viewModel.currentEditToDoTask,
                     onSubmit = {
@@ -75,11 +83,14 @@ fun ToDoTaskScreen(viewModel: ToDoTaskScreenViewModel) {
             items(
                 items = toDoTasks,
                 // Add key for scrolling animation
-                key = { item: ToDoTask -> item.uuid }
+                key = { item: ToDoTask -> item.id!! }
             ) {
                 ToDoTaskCard(
                     toDoTask = it,
-                    onTaskCompleted = { viewModel.onItemCompleted(it) },
+                    onTaskFinished = {
+                        viewModel.onItemCompleted(it)
+                        setInputText(EMPTY_STRING)
+                    },
                     onTaskEdit = { viewModel.onItemSelected(it) }
                 )
             }

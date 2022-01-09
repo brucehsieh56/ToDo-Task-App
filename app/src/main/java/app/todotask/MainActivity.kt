@@ -7,6 +7,8 @@ import androidx.activity.viewModels
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.view.WindowCompat
+import androidx.room.Room
+import app.todotask.common.data.local.ToDoTaskDatabase
 import app.todotask.screen.todotaskscreen.presentation.ToDoTaskScreen
 import app.todotask.screen.todotaskscreen.presentation.ToDoTaskScreenViewModel
 import app.todotask.ui.theme.AppTheme
@@ -22,6 +24,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val viewModel by viewModels<ToDoTaskScreenViewModel>()
+        val database = Room.databaseBuilder(
+            this,
+            ToDoTaskDatabase::class.java,
+            "ToDoTaskDatabase"
+        ).build()
+
+        viewModel.database = database
 
         // Remove window decor
         WindowCompat.setDecorFitsSystemWindows(window, false)

@@ -16,8 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import app.todotask.common.Constants.EMPTY_STRING
-import app.todotask.screen.todotaskscreen.domain.model.TaskPriority
-import app.todotask.screen.todotaskscreen.domain.model.ToDoTask
+import app.todotask.common.data.local.TaskPriority
+import app.todotask.common.data.local.ToDoTask
 
 /**
  * A Composable for users to write a [ToDoTask].
@@ -25,6 +25,8 @@ import app.todotask.screen.todotaskscreen.domain.model.ToDoTask
 @ExperimentalComposeUiApi
 @Composable
 fun ToDoTaskEditor(
+    inputText: String,
+    setInputText: (String) -> Unit,
     modifier: Modifier = Modifier,
     toDoTask: ToDoTask? = null,
     onSubmit: (ToDoTask) -> Unit = {}
@@ -37,7 +39,7 @@ fun ToDoTaskEditor(
     ) {
         Column(modifier = Modifier.animateContentSize()) {
 
-            val (inputText, setInputText) = remember { mutableStateOf(EMPTY_STRING) }
+//            val (inputText, setInputText) = remember { mutableStateOf(EMPTY_STRING) }
             val (taskPriority, setTaskPriority) = remember { mutableStateOf(TaskPriority.DEFAULT) }
             var textFieldSize by remember { mutableStateOf(IntSize(1, 1)) }
 
@@ -94,10 +96,16 @@ fun ToDoTaskEditor(
 @Preview(showBackground = true)
 @Composable
 fun PreviewToDoTaskEditor() {
+
+    val (inputText, setInputText) = remember { mutableStateOf(EMPTY_STRING) }
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        ToDoTaskEditor()
+        ToDoTaskEditor(
+            inputText = inputText,
+            setInputText = setInputText,
+        )
     }
 }

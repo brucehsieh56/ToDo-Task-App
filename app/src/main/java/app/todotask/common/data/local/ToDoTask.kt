@@ -1,19 +1,21 @@
-package app.todotask.screen.todotaskscreen.domain.model
+package app.todotask.common.data.local
 
 import androidx.compose.ui.graphics.Color
-import java.util.*
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 /**
  * Data class that models a To Do task.
  * */
+@Entity(tableName = "to_do_task_table")
 data class ToDoTask(
     val taskName: String,
     val priority: TaskPriority = TaskPriority.DEFAULT,
-    val timeCreated: Long = System.currentTimeMillis(),
-    val timeDone: Long? = null,
-    val uuid: UUID = UUID.randomUUID()
+    val createdAt: Long = System.currentTimeMillis(),
+    val finishedAt: Long? = null,
+    @PrimaryKey val id: Int? = null
 ) {
-    val isTaskDone get() = timeDone != null
+    val isTaskDone get() = finishedAt != null
 }
 
 /**

@@ -17,8 +17,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import app.todotask.screen.todotaskscreen.domain.model.TaskPriority
-import app.todotask.screen.todotaskscreen.domain.model.ToDoTask
+import app.todotask.common.data.local.TaskPriority
+import app.todotask.common.data.local.ToDoTask
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,7 +30,7 @@ import java.util.*
 fun ToDoTaskCard(
     toDoTask: ToDoTask,
     onTaskEdit: () -> Unit,
-    onTaskCompleted: () -> Unit
+    onTaskFinished: () -> Unit
 ) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -51,14 +51,17 @@ fun ToDoTaskCard(
         ) {
             val isTaskDone = toDoTask.isTaskDone
             val timeText = if (isTaskDone) {
-                toDoTask.timeDone?.toDateString() ?: ""
+                toDoTask.finishedAt?.toDateString() ?: ""
             } else {
-                toDoTask.timeCreated.toDateString()
+                toDoTask.createdAt.toDateString()
             }
 
             Checkbox(
                 checked = isTaskDone,
-                onCheckedChange = { onTaskCompleted() },
+                onCheckedChange = {
+                    onTaskFinished()
+                    keyboardController?.hide()
+                },
                 colors = CheckboxDefaults.colors(
                     uncheckedColor = when (toDoTask.priority) {
                         TaskPriority.P1 -> MaterialTheme.colorScheme.error
@@ -125,13 +128,13 @@ fun PreviewToDoTaskCard() {
     ) {
         val toDoTask = ToDoTask(
             taskName = "Create an app",
-            timeCreated = 1641040780834L
+            createdAt = 1641040780834L
         )
 
         ToDoTaskCard(
             toDoTask = toDoTask,
             onTaskEdit = {},
-            onTaskCompleted = {}
+            onTaskFinished = {}
         )
     }
 }
