@@ -3,7 +3,11 @@
 ToDo Task App is a sample Android app built with Jetpack Compose. This app uses Room database,
 Material You (Material 3), Accompanist and adopts MVVM architecture.
 
-# License
+## Inspired by
+- [Using state in Jetpack Compose](https://developer.android.com/codelabs/jetpack-compose-state#0)
+- [Dona mobile composer interactions](https://dribbble.com/shots/14568765-Dona-mobile-composer-interactions)
+
+## License
 
 ```
 MIT License
